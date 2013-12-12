@@ -1,7 +1,7 @@
 (function() {
 
 var camera, scene, renderer;
-var geometry, material, mesh;
+var geometry, material, meshes;
 
 init();
 animate();
@@ -9,7 +9,7 @@ animate();
 function init() {
 
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 10000);
-    camera.position.z = 1000;
+    camera.position.z = 300;
 
     scene = new THREE.Scene();
 
@@ -18,14 +18,21 @@ function init() {
         color: 0xff0000,
         wireframe: true
     });
-
-    mesh = new THREE.Mesh(geometry, material);
-    scene.add(mesh);
+    meshes = [];
+    meshes.push(new THREE.Mesh(geometry, material));
+    scene.add(meshes[0]);
 
     renderer = new THREE.CanvasRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
 
     document.body.appendChild(renderer.domElement);
+    document.getElementsByTagName('body')[0].onclick = function(event){
+        var temp = new THREE.Mesh(geometry, material);
+        meshes.push(temp);
+        console.log(event.x, event.y);
+        temp.position = new THREE.Vector3(event.x - (window.innerWidth / 2), (window.innerHeight / 2) - event.y, 100);
+        scene.add(temp);
+    };
 
 }
 
@@ -34,11 +41,20 @@ function animate() {
     // note: three.js includes requestAnimationFrame shim
     requestAnimationFrame(animate);
 
-    mesh.rotation.x += 0.01;
-    mesh.rotation.y += 0.02;
+    for(var i = 0; i < meshes.length; i++) {
+        var mesh = meshes[i];
+        mesh.rotation.x += getRandomArbitary(-0.02,0.02);
+        mesh.rotation.y += getRandomArbitary(-0.02,0.02);
+        mesh.translateZ(-10);
+    }
+
 
     renderer.render(scene, camera);
 
+}
+
+function getRandomArbitary (min, max) {
+    return Math.random() * (max - min) + min;
 }
 
 })();
